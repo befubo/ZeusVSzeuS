@@ -1,0 +1,114 @@
+class Header
+{
+gameType = Coop;
+minPlayers = 2;
+maxPlayers = 41;
+};
+
+Author = [KV13] befubo;
+onLoadName = "Zeus vs Zeus (Rush)";
+disabledAI=1;
+Respawn = 3;
+RespawnDelay = 3;
+RespawnDialog = 0;
+respawnButton = 1;
+enableDebugConsole = 1; 
+Saving = 0;
+Debriefing = 1;
+OnLoadIntroTime = 0;
+OnLoadMissionTime = 0;
+
+corpseManagerMode = 3;
+corpseLimit = 15;
+corpseRemovalMinTime = 10;
+corpseRemovalMaxTime = 1800;
+
+wreckManagerMode = 3;
+wreckLimit = 5;
+wreckRemovalMinTime = 10;
+wreckRemovalMaxTime = 1800;
+minPlayerDistance = 0;
+
+
+class CfgDebriefing
+{
+	class bluforWin
+	{
+		title = "Blufor wins!";
+		description = "Blufor has conquered all zones!";
+	};
+	class opforWin
+	{
+		title = "Redfor wins!";
+		description = "Opfor has successfully pushed blufor back!";
+	};
+};
+
+class Params
+{
+	class GameMode
+	{
+		title = "Spielmodus";
+		values[] = {1,2};
+		texts[] = {"Zeit","Punkte"};
+		default = 2;
+	};
+	class DurationPhase
+	{
+		title = "Dauer Angriffsphase (Zeit)";
+		values[] = {900,1800,2700,3600};
+		texts[] = {"15min","30min","45min","60min"};
+		default = 1800;
+	};
+	class ScoreNeeded
+	{
+		title = "Tickets Angreifer (Punkte)";
+		values[] = {15,200,300,400,500};
+		texts[] = {"15","200","300","400","500"};
+		default = 300;
+	};
+	class DurationTimeout
+	{
+		title = "Dauer Vorbereitungsphase";
+		values[] = {5,30,60,90,120};
+		texts[] = {"5sek","30sek","60sek","90sek","120sek"};
+		default = 90;
+	};
+	class ViewDistance
+	{
+		title = "Sichtweite";
+		values[] = { 500, 1000, 2000, 5000 };
+		texts[] = { "500m", "1000m", "2000m", "5000m" };
+		default = 2000;
+		file = "setViewDistance.sqf";
+	};
+	class AirUnits
+	{
+		title = "Helikopter aktivieren";
+		values[] = { 0, 1};
+		texts[] = { "Nein", "Ja"};
+		default = 0;
+	};
+	class TankUnits
+	{
+		title = "Panzer aktivieren";
+		values[] = { 0, 1};
+		texts[] = { "Nein", "Ja"};
+		default = 0;
+	};
+	class ArtilleryUnits
+	{
+		title = "Artillerie aktivieren";
+		values[] = { 0, 1};
+		texts[] = { "Nein", "Ja"};
+		default = 0;
+	};
+	class DebugMode
+	{
+		title = "Debug Modus";
+		values[] = { 0, 1};
+		texts[] = { "Nein", "Ja"};
+		default = 1;
+	};
+};
+
