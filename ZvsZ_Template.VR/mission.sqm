@@ -8,18 +8,18 @@ class EditorData
 	toggles=1;
 	class ItemIDProvider
 	{
-		nextID=17;
+		nextID=18;
 	};
 	class MarkerIDProvider
 	{
-		nextID=1;
+		nextID=2;
 	};
 	class Camera
 	{
-		pos[]={1049.2881,30,932.76465};
-		dir[]={-0.00055146799,-0.2539413,0.96722734};
-		up[]={-0.00014482136,0.96721393,0.253943};
-		aside[]={1.0000057,3.4096246e-008,0.00057035597};
+		pos[]={1044.0907,38.117725,914.01208};
+		dir[]={0.015679268,-0.32507876,0.94556713};
+		up[]={0.0053897128,0.94568187,0.32503641};
+		aside[]={0.99987215,7.7670848e-009,-0.016579568};
 	};
 };
 binarizationWanted=0;
@@ -429,7 +429,7 @@ class Mission
 		class Item5
 		{
 			dataType="Marker";
-			position[]={992.25897,5,3003.0681};
+			position[]={1000.5149,5,3000.116};
 			name="zone_1";
 			type="Empty";
 			id=7;
@@ -437,7 +437,7 @@ class Mission
 		class Item6
 		{
 			dataType="Marker";
-			position[]={2003.215,5,2998.509};
+			position[]={2000.0985,5,2999.8635};
 			name="spawn_1";
 			type="Empty";
 			id=10;
@@ -445,7 +445,7 @@ class Mission
 		class Item7
 		{
 			dataType="Marker";
-			position[]={1003.491,5,1993.198};
+			position[]={1000.728,5,1999.1912};
 			name="zone_0";
 			type="Empty";
 			id=13;
