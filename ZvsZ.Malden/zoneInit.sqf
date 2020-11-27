@@ -1,3 +1,5 @@
+if (!isServer) exitWith {};
+
 _markers = allMapMarkers;
 zones = [];
 spawns = [];
@@ -17,6 +19,10 @@ sleep 1;
 
 zeus_1 addCuratorPoints 1;
 zeus_2 addCuratorPoints 1;
+
+_zonesCount = (count zones) - 1;
+globalVars setVariable ["zonesCount", _zonesCount, true];
+
 [[WEST,1], 'changeZone.sqf'] remoteExec ['BIS_fnc_execVM', 2];
 
 

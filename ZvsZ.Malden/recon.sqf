@@ -6,7 +6,7 @@ _rand = random 10000;
 _markerName = str _rand + "_reconArea"; 
 createMarkerLocal [_markerName, _posModule];
 _markerName setMarkerShape "ELLIPSE";
-_markerName setMarkerSize [200, 200];
+_markerName setMarkerSize [400, 400];
 _markerName setMarkerBrush "SolidBorder";
 _markerName setMarkerColor "colorIndependent";
 _markerName setMarkerAlpha 0.5;

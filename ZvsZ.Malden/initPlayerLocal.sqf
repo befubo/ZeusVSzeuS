@@ -1,4 +1,3 @@
-_side = blufor;
 
 // MODULE FÜR BLUFOR
 if(playerSide == blufor) then {
@@ -21,8 +20,8 @@ if(playerSide == blufor) then {
 		if(_points >= 0.3) then {
 			posModule = _this select 0;
 			moduleObject = _this select 1;
-			_distance = posModule distance (position (globalVars getVariable "active_zone"));
-	
+			_distance = posModule distance (globalVars getVariable "posActiveZone");
+			
 			if(_distance > 700) then {
 				zeus_1 addCuratorPoints -0.3;
 				[posModule,moduleObject]execVM "parachute.sqf";
@@ -72,7 +71,7 @@ if(playerSide == opfor) then {
 		moduleObject = _this select 1;
 
 		_grp = group moduleObject;
-		_center = getPos (globalVars getVariable "active_zone");
+		_center = getMarkerPos ("zone_" + str zoneIndex);
 		
 		for "_i" from count waypoints _grp - 1 to 0 step -1 do
 			{
@@ -93,13 +92,19 @@ if(playerSide == opfor) then {
 	posModule = _this select 0;
 	moduleObject = _this select 1;
 	moduleObjectType = typeOf moduleObject;
-	_distance_molos = posModule distance (position zoneMolos);
-	_distance_sofia = posModule distance (position zoneSofia);
-	_distance_military = posModule distance (position zoneMilitary);
-	_distance_hotel = posModule distance (position zoneHotel);
-	_distance_startBlufor = posModule distance (position camArea_1);
 	
-	if(_distance_molos < 700 or _distance_sofia < 700 or _distance_military < 700 or _distance_hotel < 700 or _distance_startBlufor < 700) then {
+	_posIndex = 0;
+	_tooFar = 0;
+	{
+		_posZone = getMarkerPos ("zone_" + str _posIndex);
+		_distance = posModule distance _posZone;
+		if(_distance < 700) then {
+			_tooFar = 1;
+		};
+		_posIndex = _posIndex + 1;
+	} foreach zones;
+	
+	if(_tooFar == 1) then {
 		hint "Zu nahe an einer Zone!";
 	} else {
 		switch (moduleObjectType) do
@@ -108,16 +113,15 @@ if(playerSide == opfor) then {
 			{
 			rand = random 10000;
 			[zeus_1,[rand,posModule,50]] remoteExec ["addCuratorEditingArea", 0, false];
-			moduleObject setVariable ["outpost_id", rand, true];
-			driver moduleObject disableAI "AUTOTARGET";
-			driver moduleObject disableAI "MOVE";
+			_driver = driver moduleObject;
+			hideObjectGlobal _driver;
+			_driver setdamage 1;
 			moduleObject setVelocity [0,0,0];
 			
-			[zeus_1,[[moduleObject],true]] remoteExec ["removeCuratorEditableObjects", 2, false];
-			(driver moduleObject) allowDamage false;
-			_posBuilding = moduleObject modelToWorld [15,0,0];
-			"Land_Cargo_HQ_V1_F" createVehicle _posBuilding;
-			moduleObject setFuel 0;
+			
+			deleteVehicle moduleObject;
+			_building = "Land_Cargo_HQ_V1_F" createVehicle posModule;
+			_building setVariable ["outpost_id", rand, true];
 			
 			_markerName = str rand + "_radius"; 
 			createMarker [_markerName, posModule];
@@ -131,33 +135,24 @@ if(playerSide == opfor) then {
 			_markerName_1 setMarkerType "b_hq";
 			_markerName_1 setMarkerColor "colorBLUFOR";			
 			
-			moduleObject addMPEventHandler ["MPKilled", {
-				params ["_unit", "_killer", "_instigator", "_useEffects"];
-				_outpost_id = _unit getVariable "outpost_id";
-				zeus_1 removeCuratorEditingArea _outpost_id;
-				_markerName = str _outpost_id + "_radius";
-				_markerName_1 = str _outpost_id + "_icon";
-				(driver moduleObject) allowDamage true;
-				(driver moduleObject) setDamage 1;
-				deleteMarker _markerName;
-				deleteMarker _markerName_1;
-			}];
+			_trg = createTrigger ["EmptyDetector", [posModule select 0,posModule select 1,0]];
+			_trg setTriggerArea [20, 20, 0, false];
+			_trg setTriggerActivation ["EAST", "PRESENT", true];
+			_trg setTriggerStatements ["{_x iskindof ""O_engineer_F""} count thislist > 0", "_building = ((position thisTrigger) nearestObject ""Land_Cargo_HQ_V1_F""); _outpost_id = _building getVariable ""outpost_id""; zeus_1 removeCuratorEditingArea _outpost_id; _markerName = str _outpost_id + ""_radius""; 	_markerName_1 = str _outpost_id + ""_icon""; deleteMarker _markerName; deleteMarker _markerName_1; _building setDamage 1; _triggerObj = ((position thisTrigger) nearestObject ""EmptyDetector""); deleteVehicle _triggerObj", ""];
 			};
 			
 			case "O_Truck_03_device_F":
 			{
 			rand = random 10000;
 			[zeus_2,[rand,posModule,50]] remoteExec ["addCuratorEditingArea", 0, false];
-			moduleObject setVariable ["outpost_id", rand, true];
-			driver moduleObject disableAI "AUTOTARGET";
-			driver moduleObject disableAI "MOVE";
+			_driver = driver moduleObject;
+			hideObjectGlobal _driver;
+			_driver setdamage 1;
 			moduleObject setVelocity [0,0,0];
 			
-			[zeus_2,[[moduleObject],true]] remoteExec ["removeCuratorEditableObjects", 2, false];
-			(driver moduleObject) allowDamage false;
-			_posBuilding = moduleObject modelToWorld [15,0,0];
-			"Land_Cargo_HQ_V3_F" createVehicle _posBuilding;
-			moduleObject setFuel 0;
+			deleteVehicle moduleObject;
+			_building = "Land_Cargo_HQ_V3_F" createVehicle posModule;
+			_building setVariable ["outpost_id", rand, true];
 			
 			_markerName = str rand + "_radius"; 
 			createMarker [_markerName, posModule];
@@ -169,19 +164,12 @@ if(playerSide == opfor) then {
 			_markerName_1 = str rand + "_icon"; 
 			createMarker [_markerName_1, posModule];
 			_markerName_1 setMarkerType "o_hq";
-			_markerName_1 setMarkerColor "colorOPFOR";	
+			_markerName_1 setMarkerColor "colorOPFOR";			
 			
-			moduleObject addMPEventHandler ["MPKilled", {
-				params ["_unit", "_killer", "_instigator", "_useEffects"];
-				_outpost_id = _unit getVariable "outpost_id";
-				zeus_2 removeCuratorEditingArea _outpost_id;
-				_markerName = str _outpost_id + "_radius";
-				_markerName_1 = str _outpost_id + "_icon";
-				(driver moduleObject) allowDamage true;
-				(driver moduleObject) setDamage 1;
-				deleteMarker _markerName;
-				deleteMarker _markerName_1;
-			}];
+			_trg = createTrigger ["EmptyDetector", [posModule select 0,posModule select 1,0]];
+			_trg setTriggerArea [20, 20, 0, false];
+			_trg setTriggerActivation ["WEST", "PRESENT", true];
+			_trg setTriggerStatements ["{_x iskindof ""B_engineer_F""} count thislist > 0", "_building = ((position thisTrigger) nearestObject ""Land_Cargo_HQ_V3_F""); _outpost_id = _building getVariable ""outpost_id""; zeus_2 removeCuratorEditingArea _outpost_id; _markerName = str _outpost_id + ""_radius""; 	_markerName_1 = str _outpost_id + ""_icon""; deleteMarker _markerName; deleteMarker _markerName_1; _building setDamage 1; _triggerObj = ((position thisTrigger) nearestObject ""EmptyDetector""); deleteVehicle _triggerObj", ""];
 			};
 			
 		default { hint "Kein oder falsches Fahrzeug ausgewählt!"; };
@@ -193,7 +181,8 @@ if(playerSide == opfor) then {
 	posModule = _this select 0;
 	moduleObject = _this select 1;
 	moduleObjectType = typeOf moduleObject;
-	_distance = posModule distance (position (globalVars getVariable "active_zone"));
+	
+	_distance = posModule distance (globalVars getVariable "posActiveZone");
 	
 	if(_distance > 700) then {
 		hint "Zu weit weg vom nächsten Punkt!";
@@ -203,19 +192,16 @@ if(playerSide == opfor) then {
 			case "B_Truck_01_box_F":
 			{
 			rand = random 10000;
-			moduleObject setVariable ["support_id", rand, true];
-			driver moduleObject disableAI "AUTOTARGET";
-			driver moduleObject disableAI "MOVE";
+			_driver = driver moduleObject;
+			hideObjectGlobal _driver;
+			_driver setdamage 1;
 			moduleObject setVelocity [0,0,0];
 			
-			[zeus_1,[[moduleObject],true]] remoteExec ["removeCuratorEditableObjects", 2, false];
-			(driver moduleObject) enableSimulation false;
-			(driver moduleObject) allowDamage false;
+			deleteVehicle moduleObject;
+			_building = "Land_Cargo_House_V1_F" createVehicle posModule;
+			_building setVariable ["support_id", rand, true];
 			_newRes = (globalVars getVariable "blufor_res_factor") + 1;
 			globalVars setVariable ["blufor_res_factor", _newRes, true];
-			_posBuilding = moduleObject modelToWorld [10,0,0];
-			"Land_Cargo_House_V1_F" createVehicle _posBuilding;
-			moduleObject setFuel 0;
 			
 			_markerName = str rand + "_radius"; 
 			createMarker [_markerName, posModule];
@@ -227,38 +213,27 @@ if(playerSide == opfor) then {
 			_markerName_1 = str rand + "_icon"; 
 			createMarker [_markerName_1, posModule];
 			_markerName_1 setMarkerType "b_support";
-			_markerName_1 setMarkerColor "colorBLUFOR";	
+			_markerName_1 setMarkerColor "colorBLUFOR";			
 			
-			moduleObject addMPEventHandler ["MPKilled", {
-				params ["_unit", "_killer", "_instigator", "_useEffects"];
-				_newRes = (globalVars getVariable "blufor_res_factor") - 1;
-				globalVars setVariable ["blufor_res_factor", _newRes, true];
-				_support_id = _unit getVariable "support_id";
-				_markerName = str _support_id + "_radius";
-				_markerName_1 = str _support_id + "_icon";
-				(driver moduleObject) allowDamage true;
-				(driver moduleObject) setDamage 1;
-				deleteMarker _markerName;
-				deleteMarker _markerName_1;
-			}];
+			_trg = createTrigger ["EmptyDetector", [posModule select 0,posModule select 1,0]];
+			_trg setTriggerArea [20, 20, 0, false];
+			_trg setTriggerActivation ["EAST", "PRESENT", true];
+			_trg setTriggerStatements ["{_x iskindof ""O_engineer_F""} count thislist > 0", "_building = ((position thisTrigger) nearestObject ""Land_Cargo_House_V1_F""); _support_id = _building getVariable ""support_id""; _markerName = str _support_id + ""_radius""; 	_markerName_1 = str _support_id + ""_icon""; deleteMarker _markerName; deleteMarker _markerName_1; _building setDamage 1; _newRes = (globalVars getVariable ""blufor_res_factor"") - 1; globalVars setVariable [""blufor_res_factor"", _newRes, true]; _triggerObj = ((position thisTrigger) nearestObject ""EmptyDetector""); deleteVehicle _triggerObj", ""];
 			};
 			
 			case "O_Truck_03_device_F":
 			{
 			rand = random 10000;
-			moduleObject setVariable ["support_id", rand, true];
-			driver moduleObject disableAI "AUTOTARGET";
-			driver moduleObject disableAI "MOVE";
+			_driver = driver moduleObject;
+			hideObjectGlobal _driver;
+			_driver setdamage 1;
 			moduleObject setVelocity [0,0,0];
 			
-			[zeus_2,[[moduleObject],true]] remoteExec ["removeCuratorEditableObjects", 2, false];
-			(driver moduleObject) enableSimulation false;
-			(driver moduleObject) allowDamage false;
+			deleteVehicle moduleObject;
+			_building = "Land_Cargo_House_V3_F" createVehicle posModule;
+			_building setVariable ["support_id", rand, true];
 			_newRes = (globalVars getVariable "redfor_res_factor") + 1;
 			globalVars setVariable ["redfor_res_factor", _newRes, true];
-			_posBuilding = moduleObject modelToWorld [10,0,0];
-			"Land_Cargo_House_V3_F" createVehicle _posBuilding;
-			moduleObject setFuel 0;
 			
 			_markerName = str rand + "_radius"; 
 			createMarker [_markerName, posModule];
@@ -269,29 +244,16 @@ if(playerSide == opfor) then {
 			
 			_markerName_1 = str rand + "_icon"; 
 			createMarker [_markerName_1, posModule];
-			_markerName_1 setMarkerType "o_support";
-			_markerName_1 setMarkerColor "colorOPFOR";	
+			_markerName_1 setMarkerType "b_support";
+			_markerName_1 setMarkerColor "colorOPFOR";			
 			
-			moduleObject addMPEventHandler ["MPKilled", {
-				params ["_unit", "_killer", "_instigator", "_useEffects"];
-				_newRes = (globalVars getVariable "redfor_res_factor") - 1;
-				globalVars setVariable ["redfor_res_factor", _newRes, true];
-				_support_id = _unit getVariable "support_id";
-				_markerName = str _support_id + "_radius";
-				_markerName_1 = str _support_id + "_icon";
-				(driver moduleObject) allowDamage true;
-				(driver moduleObject) setDamage 1;
-				deleteMarker _markerName;
-				deleteMarker _markerName_1;
-			}];
+			_trg = createTrigger ["EmptyDetector", [posModule select 0,posModule select 1,0]];
+			_trg setTriggerArea [20, 20, 0, false];
+			_trg setTriggerActivation ["WEST", "PRESENT", true];
+			_trg setTriggerStatements ["{_x iskindof ""B_engineer_F""} count thislist > 0", "_building = ((position thisTrigger) nearestObject ""Land_Cargo_House_V3_F""); _support_id = _building getVariable ""support_id""; _markerName = str _support_id + ""_radius""; 	_markerName_1 = str _support_id + ""_icon""; deleteMarker _markerName; deleteMarker _markerName_1; _building setDamage 1; _newRes = (globalVars getVariable ""redfor_res_factor"") - 1; globalVars setVariable [""redfor_res_factor"", _newRes, true]; _triggerObj = ((position thisTrigger) nearestObject ""EmptyDetector""); deleteVehicle _triggerObj", ""];
 			};
 			
 		default { hint "Kein oder falsches Fahrzeug ausgewählt!"; };
 		};
 	};
 }] call zen_custom_modules_fnc_register;
-
-
-
-
-

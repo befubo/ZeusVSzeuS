@@ -1,3 +1,5 @@
+if (!isServer) exitWith {};
+
 _side = _this select 0;
 if(_side == WEST) then {
 	
@@ -5,10 +7,12 @@ if(_side == WEST) then {
 	_zonesCount = count zones;
 	if(_zonesCount > zoneIndex) then {
 		
+		
 		posNewZone = getMarkerPos ("zone_" + str zoneIndex);
 		posOldZone = getMarkerPos ("zone_" + str (zoneIndex - 1));
 		posNewSpawn = getMarkerPos ("spawn_" + str zoneIndex);
 
+		globalVars setVariable ["posActiveZone", posNewZone, true];
 
 	//------------------ MANAGE EDITING AREAS ---------------
 
@@ -31,8 +35,8 @@ if(_side == WEST) then {
 	//------------------ MANAGE RESSOURCES ------------------
 		
 		if(zoneIndex != 1) then {
-		zeus_1 addCuratorPoints 0.5;
-		zeus_2 addCuratorPoints 0.5;
+		zeus_1 addCuratorPoints 1;
+		zeus_2 addCuratorPoints 1;
 		};
 		
 	//------------------ MANAGE SCORE ----------------------

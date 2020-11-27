@@ -1,75 +1,3 @@
-addMissionEventHandler ["EntityKilled", {
-	params ["_killed", "_killer", "_instigator"];
-	
-	_killed removeAllEventHandlers "fired";
-	
-	if (side group _killed isEqualTo EAST) then {
-		if(_killed isKindOf "Man") then {
-			p1 addPlayerScores [1, 0, 0, 0, 0];
-		};
-		if(_killed isKindOf "StaticWeapon") then {
-			p1 addPlayerScores [1, 0, 0, 0, 0];
-		};
-		if(_killed isKindOf "Car") then {
-			p1 addPlayerScores [0, 1, 0, 0, 0];
-		};
-		if(_killed isKindOf "Air") then {
-			p1 addPlayerScores [0, 0, 0, 1, 0];
-		};
-		if(_killed isKindOf "Tank") then {
-			p1 addPlayerScores [0, 0, 1, 0, 0];
-		};
-	};
-	if (side group _killed isEqualTo WEST) then {
-		if(_killed isKindOf "Man") then {
-			_newScore = (globalVars getVariable "score_opfor") + 1;
-			globalVars setVariable ["score_opfor", _newScore, true];
-			p2 addPlayerScores [1, 0, 0, 0, 0];
-		};
-		if(_killed isKindOf "StaticWeapon") then {
-			_newScore = (globalVars getVariable "score_opfor") + 1;
-			globalVars setVariable ["score_opfor", _newScore, true];
-			p2 addPlayerScores [1, 0, 0, 0, 0];
-		};
-		if(_killed isKindOf "Car") then {
-			_newScore = (globalVars getVariable "score_opfor") + 5;
-			globalVars setVariable ["score_opfor", _newScore, true];
-			p2 addPlayerScores [0, 1, 0, 0, 0];
-		};
-		if(_killed isKindOf "Air") then {
-			_newScore = (globalVars getVariable "score_opfor") + 5;
-			globalVars setVariable ["score_opfor", _newScore, true];
-			p2 addPlayerScores [0, 0, 0, 1, 0];
-		};
-		if(_killed isKindOf "Tank") then {
-			_newScore = (globalVars getVariable "score_opfor") + 10;
-			globalVars setVariable ["score_opfor", _newScore, true];
-			p2 addPlayerScores [0, 0, 1, 0, 0];
-		};
-	};
-}];
-
-addMissionEventHandler ["EachFrame", {
-	{
-		_x setSkill 1;
-		_x allowFleeing 0;
-		
-		_x addeventhandler ["fired", 
-		{
-			if ((_this select 5) == "NLAW_F") then	{
-				(_this select 0) addMagazine "NLAW_F";
-				hint "Added NLAW!";
-			};
-			if ((_this select 5) == "RPG32_F") then	{
-				(_this select 0) addMagazine "RPG32_F";
-			};
-			(_this select 0) setvehicleammo 1;
-		}];
-		
-	} foreach allUnits;
-}];
-
-
 globalVars setVariable ["gamemode", paramsArray select 0, true];
 globalVars setVariable ["advance_time_attacker", paramsArray select 1, true];
 globalVars setVariable ["score_needed", paramsArray select 2, true];
@@ -82,8 +10,18 @@ globalVars setVariable ["score_opfor", 0, true];
 
 globalVars setVariable ["ied_count", 0, true];
 
+addMissionEventHandler ["EachFrame", {
+	{
+		_x setSkill 1;
+		_x allowFleeing 0;
+		group _x setSpeedMode "FULL";
+	} foreach allUnits;
+}];
+
+
 //------------------ PLACEABLE UNITS BLUFOR ------------------
 bluforUnits = [
+"B_engineer_F",0.07,
 "B_soldier_AR_F",0.07,
 "B_soldier_AAR_F",0.06,
 "B_HeavyGunner_F",0.07,
@@ -125,6 +63,7 @@ bluforUnits = [
 
 //------------------ PLACEABLE UNITS BLUFOR ------------------
 opforUnits = [
+"O_engineer_F",0.07,
 "O_Soldier_SL_F",0.06,
 "O_Soldier_F",0.04,
 "O_Soldier_LAT_F",0.07,
@@ -222,31 +161,20 @@ if(_debug == 1) then {
 	bluforUnits pushBack 0.01;
 	bluforUnits pushBack "O_MRAP_02_F";
 	bluforUnits pushBack 0.01;
+	bluforUnits pushBack "O_Soldier_LAT_F";
+	bluforUnits pushBack 0.01;
+	bluforUnits pushBack "O_engineer_F";
+	bluforUnits pushBack 0.01;
 	
 	opforUnits pushBack "B_Soldier_F";
 	opforUnits pushBack 0.01;
 	opforUnits pushBack "B_MRAP_01_F";
 	opforUnits pushBack 0.01;
+	opforUnits pushBack "B_soldier_LAT_F";
+	opforUnits pushBack 0.01;
+	opforUnits pushBack "B_engineer_F";
+	opforUnits pushBack 0.01;
 };
 
 [zeus_1, bluforUnits] call BIS_fnc_curatorObjectRegisteredTable;
 [zeus_2, opforUnits] call BIS_fnc_curatorObjectRegisteredTable;
-
-[[], 'zoneInit.sqf'] remoteExec ['BIS_fnc_execVM', 2];
-
-// ------------------ GAMEMODE CALC ----------------
-
-if(globalVars getVariable "gamemode" == 1) then {
-	[globalVars getVariable "advance_time_attacker"] call BIS_fnc_countDown;
-	sleep 1;
-	[[], 'opforWinTime.sqf'] remoteExec ['BIS_fnc_execVM', 0];
-};
-
-if(globalVars getVariable "gamemode" == 2) then {
-	[[], 'showScore.sqf'] remoteExec ['BIS_fnc_execVM', 0];
-	[[], 'opforWinScore.sqf'] remoteExec ['BIS_fnc_execVM', 0];
-};
-
-[[], 'showScore.sqf'] remoteExec ['BIS_fnc_execVM', 0];
-
-
